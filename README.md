@@ -1,135 +1,130 @@
-## Foundry-Monad
+# StakingGateFactory
 
-> [!NOTE]  
-> In this foundry template the default chain is `monadTestnet`, if you wish to change it change the network in `foundry.toml`
+A Solidity factory contract that allows anyone to create customized staking contracts with different requirements and names. Each staking contract gates access to content by requiring users to stake a specific amount of ETH.
 
-<h4 align="center">
-  <a href="https://docs.monad.xyz">Monad Documentation</a> | <a href="https://book.getfoundry.sh/">Foundry Documentation</a> | 
-   <a href="https://github.com/monad-developers/foundry-monad/issues">Report Issue</a>
-</h4>
+## Deployed Contracts
 
-_Foundry-Monad is a Foundry template with Monad configuration. So developers don't have to do the initial configuration in Foundry for Monad network._
+### Factory Contract
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+- **Address**: `0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3`
+- **Network**: Monad Testnet
+- **Purpose**: Creates new staking contracts with customizable parameters
 
-Foundry consists of:
+### Example Staking Contract
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- **Address**: `0x22c453f438085008a9b9dbf4b418f7fd73df4350`
+- **Name**: TestApp
+- **Required Stake**: 0.0069 ETH (6,900,000,000,000,000 wei)
 
-## Requirements
+## Features
 
-Before you begin, you need to install the following tools:
+Each staking contract created by the factory:
 
--   Rust
--   Cargo
--   [Foundryup](https://book.getfoundry.sh/getting-started/installation)
+- Requires users to stake exactly the specified amount
+- Allows users to withdraw their stake at any time
+- Has the `isStaker(address)` function to check if an address has staked
+- Tracks the total number of stakers
+- Is owned by whoever created it through the factory
 
-## Quickstart
+## How to Create Your Own Staking Contract
 
-To get started, follow the steps below:
+### Using Forge/Cast (Command Line)
 
-1. You can either clone this repo using the below command:
-
-```sh
-git clone https://github.com/monad-developers/foundry-monad
+```bash
+cast send 0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3 "createStakingGate(uint256,string)" YOUR_STAKE_AMOUNT_IN_WEI "YOUR_APP_NAME" --account YOUR_ACCOUNT_NAME
 ```
 
-or
+Example (Creating a contract requiring 0.01 ETH):
 
-You can do it manually using the below set of commands:
-
-```sh
-mkdir [project_name] && cd [project_name] && forge init --template monad-developers/foundry-monad
+```bash
+cast send 0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3 "createStakingGate(uint256,string)" 10000000000000000 "MyNewApp" --account monad
 ```
 
-The foundry project is now ready to be used!
+### Using Web3 JS/Ethers
 
-## Examples
+```javascript
+const factory = new ethers.Contract(
+  '0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3',
+  factoryAbi,
+  signer
+);
 
-### Compile
+const tx = await factory.createStakingGate(
+  ethers.utils.parseEther('0.01'),
+  'MyNewApp'
+);
 
-```shell
-forge compile
+const receipt = await tx.wait();
+console.log(
+  'New contract created at:',
+  receipt.events[0].args.stakingGateAddress
+);
 ```
 
-### Build
+## How to Verify Your Staking Contract
 
-```shell
-forge build
-```
+After creating a staking contract, you can verify it on the Monad Testnet block explorer:
 
-### Test
-
-```shell
-forge test
-```
-
-### Deploy and Verify
-
-```shell
-forge create \
-  --private-key <your_private_key> \
-  src/Counter.sol:Counter \
-  --broadcast \
-  --verify \
-  --verifier sourcify \
-  --verifier-url https://sourcify-api-monad.blockvision.org
-```
-
-### Deploy
-
-```shell
-forge create --private-key <your_private_key> src/Counter.sol:Counter --broadcast
-```
-
-### Verify Contract
-
-```shell
+```bash
+# First, extract the contract address from transaction logs
+# Then, verify using Forge
 forge verify-contract \
-  <contract_address> \
-  src/Counter.sol:Counter \
-  --chain 10143 \
-  --verifier sourcify \
-  --verifier-url https://sourcify-api-monad.blockvision.org
+--rpc-url https://testnet-rpc2.monad.xyz/52227f026fa8fac9e2014c58fbf5643369b3bfc6 \
+--verifier sourcify \
+--verifier-url 'https://sourcify-api-monad.blockvision.org' \
+--constructor-args $(cast abi-encode "constructor(uint256,string,address)" YOUR_STAKE_AMOUNT "YOUR_APP_NAME" YOUR_ADDRESS) \
+YOUR_CONTRACT_ADDRESS \
+src/StakingGateFactory.sol:StakingGate
 ```
 
-### Format
+Example:
 
-```shell
-forge fmt
+```bash
+forge verify-contract \
+--rpc-url https://testnet-rpc2.monad.xyz/52227f026fa8fac9e2014c58fbf5643369b3bfc6 \
+--verifier sourcify \
+--verifier-url 'https://sourcify-api-monad.blockvision.org' \
+--constructor-args $(cast abi-encode "constructor(uint256,string,address)" 10000000000000000 "MyNewApp" 0x70EC34970f76A318A66Eb0042D5E1EF795bE0825) \
+0xYourNewContractAddress \
+src/StakingGateFactory.sol:StakingGate
 ```
 
-### Gas Snapshots
+## Finding Your Created Contracts
 
-```shell
-forge snapshot
+To get all contracts you've created:
+
+```bash
+cast call 0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3 "getStakingGatesByCreator(address)(address[])" YOUR_ADDRESS
 ```
 
-### Anvil
+## Interacting with Staking Contracts
 
-```shell
-anvil
+### To stake (exactly the required amount):
+
+```bash
+cast send YOUR_STAKING_CONTRACT_ADDRESS "stake()" --value YOUR_STAKE_AMOUNT_IN_WEI --account YOUR_ACCOUNT_NAME
 ```
 
-### Cast
+### To check if an address is a staker:
 
-```shell
-cast <subcommand>
+```bash
+cast call YOUR_STAKING_CONTRACT_ADDRESS "isStaker(address)(bool)" ADDRESS_TO_CHECK
 ```
 
-### Help
+### To withdraw your stake:
 
-```shell
-forge --help
+```bash
+cast send YOUR_STAKING_CONTRACT_ADDRESS "withdraw()" --account YOUR_ACCOUNT_NAME
 ```
 
-```shell
-anvil --help
+## Contract Information
+
+To get information about a contract created by the factory:
+
+```bash
+cast call 0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3 "getContractInfo(address)(bool,uint256,string,address)" CONTRACT_ADDRESS
 ```
 
-```shell
-cast --help
-```
+## License
+
+MIT

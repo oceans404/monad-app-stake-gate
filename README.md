@@ -1,6 +1,6 @@
 # StakingGateFactory
 
-A Solidity factory contract that allows anyone to create customized staking contracts with different requirements and names. Each staking contract gates access to content by requiring users to stake a specific amount of ETH.
+A Solidity factory contract that allows anyone to create customized staking contracts with different requirements and names. Each staking contract gates access to content by requiring users to stake a specific amount of MON.
 
 ## Deployed Contracts
 
@@ -18,7 +18,7 @@ StakingGate for "TestApp": https://testnet.monadexplorer.com/address/0x22C453f43
 
 - **Address**: `0x22c453f438085008a9b9dbf4b418f7fd73df4350`
 - **Name**: TestApp
-- **Required Stake**: 0.0069 ETH (6,900,000,000,000,000 wei)
+- **Required Stake**: 0.0069 MON (6,900,000,000,000,000 wei)
 
 ## Features
 
@@ -38,7 +38,7 @@ Each staking contract created by the factory:
 cast send 0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3 "createStakingGate(uint256,string)" YOUR_STAKE_AMOUNT_IN_WEI "YOUR_APP_NAME" --account YOUR_ACCOUNT_NAME
 ```
 
-Example (Creating a contract requiring 0.01 ETH):
+Example (Creating a contract requiring 0.01 MON):
 
 ```bash
 cast send 0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3 "createStakingGate(uint256,string)" 10000000000000000 "MyNewApp" --account monad

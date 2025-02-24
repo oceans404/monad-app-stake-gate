@@ -6,11 +6,15 @@ A Solidity factory contract that allows anyone to create customized staking cont
 
 ### Factory Contract
 
+StakingGateFactory: https://testnet.monadexplorer.com/address/0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3?tab=Contract
+
 - **Address**: `0x7c809EA8370B2efD01b3f175Be3Aab970b66Ded3`
 - **Network**: Monad Testnet
 - **Purpose**: Creates new staking contracts with customizable parameters
 
 ### Example Staking Contract
+
+StakingGate for "TestApp": https://testnet.monadexplorer.com/address/0x22C453f438085008A9B9dBf4b418F7Fd73DF4350?tab=Contract
 
 - **Address**: `0x22c453f438085008a9b9dbf4b418f7fd73df4350`
 - **Name**: TestApp
